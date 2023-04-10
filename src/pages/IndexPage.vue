@@ -13,6 +13,7 @@ const tasks = useCollection<Todo>(tasksQuery);
 
 
 const prompt = ref(false);
+const editting = ref<Todo | null>(null);
 const enableAddButton = ref(false);
 const newTaskContent = ref('');
 
@@ -27,6 +28,11 @@ function addTask() {
         prompt.value = false;
         newTaskContent.value = '';
     }).finally(() => enableAddButton.value = true);
+}
+
+function updateTask(task: Todo) {
+    updateDoc(doc(db, 'tasks', task.id), { content: task.content, updatedAt: Timestamp.now() })
+        .finally(() => editting.value = null);
 }
 
 function toggleCheckbox(task: Todo, state: boolean) {
@@ -56,6 +62,10 @@ onMounted(() => enableAddButton.value = true);
                             class="text-left"
                         >{{ task.content }}</q-item-label>
                     </q-item-section>
+
+                    <q-item-section side>
+                        <q-btn flat dense round icon="edit" @click.stop="editting = task" />
+                    </q-item-section>
                 </q-item>
 
 
@@ -78,6 +88,10 @@ onMounted(() => enableAddButton.value = true);
                             class="text-left"
                         >{{ task.content }}</q-item-label>
                     </q-item-section>
+
+                    <q-item-section side>
+                        <q-btn flat dense round icon="edit" @click.stop="editting = task" />
+                    </q-item-section>
                 </q-item>
             </transition-group>
         </q-list>
@@ -96,6 +110,23 @@ onMounted(() => enableAddButton.value = true);
                 <q-btn flat label="Cancel" v-close-popup />
                 <q-btn flat label="Add" @click="addTask" />
             </q-card-actions>
+            </q-card>
+        </q-dialog>
+
+        <q-dialog :model-value="editting != null" persistent>
+            <q-card style="min-width: 350px" v-if="editting">
+                <q-card-section>
+                    <div class="text-h6">Edit task</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    <q-input dense v-model="editting.content" autofocus @keyup.enter="updateTask(editting!!)" />
+                </q-card-section>
+
+                <q-card-actions align="right" class="text-primary">
+                    <q-btn flat label="Cancel" v-close-popup />
+                    <q-btn flat label="Save" @click="updateTask(editting!!)" />
+                </q-card-actions>
             </q-card>
         </q-dialog>
     </q-page>
