@@ -70,7 +70,7 @@ onMounted(() => enableAddButton.value = true);
 
 
                 <q-separator spaced />
-                <q-item-label header class="q-px-lg text-gray-8">Completed</q-item-label>
+                <q-item-label header class="q-px-lg text-gray-8">{{ $t('Completed') }}</q-item-label>
 
                 <q-item 
                     clickable 
@@ -99,7 +99,7 @@ onMounted(() => enableAddButton.value = true);
         <q-dialog v-model="prompt" persistent>
             <q-card style="min-width: 350px">
             <q-card-section>
-                <div class="text-h6">New task</div>
+                <div class="text-h6">{{ $t('New task') }}</div>
             </q-card-section>
 
             <q-card-section class="q-pt-none">
@@ -107,8 +107,8 @@ onMounted(() => enableAddButton.value = true);
             </q-card-section>
 
             <q-card-actions align="right" class="text-primary">
-                <q-btn flat label="Cancel" v-close-popup />
-                <q-btn flat label="Add" @click="addTask" />
+                <q-btn flat :label="$t('Cancel')" v-close-popup />
+                <q-btn flat :label="$t('Add')" @click="addTask" />
             </q-card-actions>
             </q-card>
         </q-dialog>
@@ -116,7 +116,7 @@ onMounted(() => enableAddButton.value = true);
         <q-dialog :model-value="editting != null" persistent>
             <q-card style="min-width: 350px" v-if="editting">
                 <q-card-section>
-                    <div class="text-h6">Edit task</div>
+                    <div class="text-h6">{{ $t('Edit-task') }}</div>
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
@@ -124,8 +124,8 @@ onMounted(() => enableAddButton.value = true);
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
-                    <q-btn flat label="Cancel" v-close-popup />
-                    <q-btn flat label="Save" @click="updateTask(editting!!)" />
+                    <q-btn flat :label="$t('Cancel')" v-close-popup />
+                    <q-btn flat :label="$t('Save')" @click="updateTask(editting!!)" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
