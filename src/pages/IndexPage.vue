@@ -36,7 +36,11 @@ function updateTask(task: Todo) {
 }
 
 function toggleCheckbox(task: Todo, state: boolean) {
-    updateDoc(doc(db, 'tasks', task.id), { done: state, updatedAt: Timestamp.now() });
+    updateDoc(doc(db, 'tasks', task.id), {
+        done: state, 
+        updatedAt: Timestamp.now(),
+        doneAt: state ? Timestamp.now() : null
+    });
 }
 
 onMounted(() => enableAddButton.value = true);
