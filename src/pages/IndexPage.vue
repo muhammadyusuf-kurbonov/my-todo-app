@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Timestamp, addDoc, collection, doc, orderBy, query, updateDoc } from '@firebase/firestore';
+import { Timestamp, addDoc, collection, doc, orderBy, query, updateDoc, deleteDoc } from '@firebase/firestore';
 import { Todo } from 'components/models';
 import { onMounted, ref } from 'vue';
 import { useCollection, useFirestore } from 'vuefire';
@@ -14,6 +14,7 @@ const tasks = useCollection<Todo>(tasksQuery);
 
 const prompt = ref(false);
 const editting = ref<Todo | null>(null);
+const deleting = ref<Todo | null>(null);
 const enableAddButton = ref(false);
 const newTaskContent = ref('');
 
@@ -33,6 +34,11 @@ function addTask() {
 function updateTask(task: Todo) {
     updateDoc(doc(db, 'tasks', task.id), { content: task.content, updatedAt: Timestamp.now() })
         .finally(() => editting.value = null);
+}
+
+function deleteTask(task: Todo) {
+    deleteDoc(doc(db, 'tasks', task.id))
+        .finally(() => deleting.value = null);
 }
 
 function toggleCheckbox(task: Todo, state: boolean) {
@@ -77,7 +83,7 @@ onMounted(() => enableAddButton.value = true);
                 <q-item-label header class="q-px-lg text-gray-8">{{ $t('Completed') }}</q-item-label>
 
                 <q-item 
-                    clickable 
+                    clickable
                     v-ripple 
                     v-for="task in tasks.filter(task => task.done)"
                     :key="task.id"
@@ -95,6 +101,9 @@ onMounted(() => enableAddButton.value = true);
 
                     <q-item-section side>
                         <q-btn flat dense round icon="edit" @click.stop="editting = task" />
+                    </q-item-section>
+                    <q-item-section side>
+                        <q-btn flat dense round icon="delete" @click.stop="deleting = task" />
                     </q-item-section>
                 </q-item>
             </transition-group>
@@ -128,8 +137,27 @@ onMounted(() => enableAddButton.value = true);
                 </q-card-section>
 
                 <q-card-actions align="right" class="text-primary">
-                    <q-btn flat :label="$t('Cancel')" v-close-popup />
+                    <q-btn flat :label="$t('Cancel')" @click="editting = null" />
                     <q-btn flat :label="$t('Save')" @click="updateTask(editting!!)" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+        <q-dialog :model-value="deleting != null" persistent>
+            <q-card
+                style="min-width: 350px"
+                v-if="deleting"
+            >
+                <q-card-section>
+                    <div class="text-h6">{{ $t('Are you sure delete this task?') }}</div>
+                </q-card-section>
+            
+                <q-card-section>
+                    <div class="text" @keyup.enter="deleteTask(deleting)">{{ deleting.content }}</div>
+                </q-card-section>
+
+                <q-card-actions align="right" class="text-primary">
+                    <q-btn flat :label="$t('Cancel')" @click="deleting = null" />
+                    <q-btn color="red" :label="$t('Delete')" @click="deleteTask(deleting!!)" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
