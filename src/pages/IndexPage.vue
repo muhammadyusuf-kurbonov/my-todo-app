@@ -3,7 +3,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Timestamp, addDoc, collection, doc, orderBy, query, updateDoc, deleteDoc } from '@firebase/firestore';
 import { Todo } from 'components/models';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useCollection, useFirestore } from 'vuefire';
 
 const db = useFirestore();
@@ -49,6 +49,8 @@ function toggleCheckbox(task: Todo, state: boolean) {
     });
 }
 
+const activeTasks = computed(() => tasks.value.filter(task => !task.done));
+
 onMounted(() => enableAddButton.value = true);
 </script>
 
@@ -56,10 +58,13 @@ onMounted(() => enableAddButton.value = true);
     <q-page container view="lhh LpR lff">
         <q-list separator>
             <transition-group name="list">
+                <q-item-label header class="q-px-lg text-gray-8">
+                    {{ $t('Active') }} ({{ activeTasks.length }})
+                </q-item-label>
                 <q-item 
                     clickable 
                     v-ripple 
-                    v-for="task in tasks.filter(task => !task.done)"
+                    v-for="task in activeTasks"
                     :key="task.id"
                     @click="toggleCheckbox(task, !task.done)"
                 >
